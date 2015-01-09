@@ -14,6 +14,22 @@ describe("A Server", function () {
 		server = new Server();
 	});
 
+	describe("sending a message to a room", function () {
+		it("broadcasts the message to all participants", function () {
+			var broadcast = sinon.spy(server.sockets.adapter, "broadcast");
+
+			server.to("room1").emit("event", "data");
+
+			expect(broadcast.firstCall.args[0], "packet").to.deep.equal({
+				data : [ "event", "data" ]
+			});
+			expect(broadcast.firstCall.args[1], "options").to.deep.equal({
+				except : [],
+				rooms  : [ "room1" ]
+			});
+		});
+	});
+
 	it("is an event emitter", function () {
 		expect(server, "emitter").to.be.an.instanceOf(EventEmitter);
 		expect(server, "constructor").to.have.property("constructor", Server);
