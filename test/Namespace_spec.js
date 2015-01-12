@@ -29,9 +29,9 @@ describe("A namespace", function () {
 		expect(namespace, "server").to.have.property("server", server);
 	});
 
-	it("has a list of sockets", function () {
-		expect(namespace, "sockets").to.have.property("sockets")
-		.that.deep.equals([]);
+	it("has a list of connected sockets", function () {
+		expect(namespace, "connected").to.have.property("connected")
+		.that.deep.equals({});
 	});
 
 	it("has an adapter", function () {
@@ -72,7 +72,7 @@ describe("A namespace", function () {
 			});
 
 			it("augments the socket list", function () {
-				expect(namespace.sockets, "socket list").to.include(socket);
+				expect(namespace.connected[socket.id], "socket list").to.equal(socket);
 			});
 
 			it("runs the middleware on the socket", function () {
@@ -90,19 +90,20 @@ describe("A namespace", function () {
 				});
 
 				it("reduces the socket list", function () {
-					expect(namespace.sockets, "socket list").not.to.include(socket);
+					expect(namespace.connected[socket.id], "socket list").to.be.undefined;
 				});
 
 				describe("again", function () {
 					var sockets;
 
 					before(function () {
-						sockets = namespace.sockets.length;
+						sockets = Object.keys(namespace.connected).length;
 						namespace.remove(socket);
 					});
 
 					it("does nothing", function () {
-						expect(namespace.sockets, "length").to.have.length(sockets);
+						var connectedIds = Object.keys(namespace.connected);
+						expect(connectedIds, "length").to.have.length(sockets);
 					});
 				});
 			});
@@ -140,7 +141,7 @@ describe("A namespace", function () {
 			});
 
 			it("does not augment the socket list", function () {
-				expect(namespace.sockets, "socket list").not.to.include(socket);
+				expect(namespace.connected[socket.id], "socket list").to.be.undefined;
 			});
 
 			it("runs the middleware on the socket", function () {
